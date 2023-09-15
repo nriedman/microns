@@ -21,7 +21,9 @@ The arguments (described in detail in the script) are:
 - k: An integer, the number of nearest neighbors for each synapse to consider when generating the minimum spanning tree
 - soma_k: An integer, the number of nearest neighbors for the soma to consider when generating the minimum spanning tree
 
-It returns a list of minimum spanning trees, whose properties are described in detail in the script.
+It returns **two** objects:
+- First: A list of minimum spanning trees, whose properties are described in detail in the script.
+- Second: A list of the cell_ids that did not have enough synapses to make a minimum spanning tree (likely empty, often ignored)
 
 **Notes on usage:**
 
