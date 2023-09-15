@@ -33,5 +33,5 @@ It returns a list of minimum spanning trees, whose properties are described in d
 
 Here is an example of how I would use the function:
 
-https://github.com/nriedman/microns/blob/dd5979b829f2df185a8ad8543183a4056aa72bdc/mst_example.py
+https://github.com/nriedman/microns/blob/7d1233d3ac5eba714d28369980fcdc283de6c08c/mst_example.py
 
