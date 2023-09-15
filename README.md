@@ -47,9 +47,9 @@ The function to do so is called plot_mst_3d(). It takes 1 positional argument (G
 
 plot_msts.py also includes the functions to get the paths from a given minimum spanning tree. I added functionality to ignore burst sequences, as well as an option to directly return sequences of cell_ids instead of paths of synapse ids. If you get sequences from a tree and would like to conver them into an easily readible format, I also uploaded the dictionaries I use that map pre-cell ids to single unicode characters and back again, as well as from the single unicode characters to a unique 3-character codon that is guaranteed to be legible.
 
-pre-cell id to char: pt_root_id_to_char.pkl
-char to pre-cell id: char_to_pt_root_id.pkl
-char to codon: char_to_codon.pkl
+- pre-cell id to char: pt_root_id_to_char.pkl
+- char to pre-cell id: char_to_pt_root_id.pkl
+- char to codon: char_to_codon.pkl
 
 Let me know if you have any questions!
 
