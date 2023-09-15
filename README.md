@@ -13,6 +13,8 @@ cells_no_repeats.csv:
 gen_msts.py:
 - Python script including the function and dependencies for generating minimum spanning trees from a given synapse table
 
+**For Generating Msts (gen_msts.py)**
+
 The function that generates minimum spanning trees is called **generate_msts()**.
 
 The arguments (described in detail in the script) are:
@@ -36,4 +38,12 @@ It returns **two** objects:
 Here is an example of how I would use the function:
 
 https://github.com/nriedman/microns/blob/7d1233d3ac5eba714d28369980fcdc283de6c08c/mst_example.py
+
+**For Plotting Msts (plot_msts.py)**
+
+The plot_msts.py script has functions for visualizing msts in 3D, highlighting sequences.
+
+The function to do so is called plot_mst_3d(). It takes 1 positional argument (G, an mst graph) and returns the paths for that graph. Along the way, it plots the graph in 3D, highlighting paths of synapses in color. I included it in case you want to visualize any of the minimum spanning trees you create.
+
+Let me know if you have any questions!
 
