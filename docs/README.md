@@ -1,57 +1,186 @@
-# Microns
+# MICrONS: Synaptic Organization Analysis
 
-Summer 2023 project analyzing the synaptic organization of the dendrite in the MICrONS Cortial MM^3 dataset.
+A Summer 2023 research project analyzing the synaptic organization of dendrites in the MICrONS Cortical MM³ dataset using minimum spanning trees (MSTs).
 
-sample_dataset:
-- .csv files containing all the input synapses of three 23P cells
-- The number in the filename corresponds to the excitatory input count percentile of that cell
+## Overview
 
-cells_no_repeats.csv:
-- Contains cell information on all the excitatory cells is in the entire MM^3 dataset
-- Needed to generate msts
+This project investigates dendritic organization patterns by generating and analyzing minimum spanning trees from synaptic connectivity data. The approach reveals structural patterns in how synapses are organized along dendrites in cortical neurons.
 
-gen_msts.py:
-- Python script including the function and dependencies for generating minimum spanning trees from a given synapse table
+## Repository Structure
 
-**For Generating Msts (gen_msts.py)**
+```
+microns/
+├── src/                    # Core analysis modules
+├── notebooks/              # Analysis notebooks (organized by purpose)
+├── data/                   # Datasets and mapping files
+├── environments/           # Conda environment configurations
+└── docs/                   # Documentation
+```
 
-The function that generates minimum spanning trees is called **generate_msts()**.
+## Quick Start
 
-The arguments (described in detail in the script) are:
-- synapses_df: A pandas dataframe of synapses
-- cells_df: A pandas dataframe of cell info
-- k: An integer, the number of nearest neighbors for each synapse to consider when generating the minimum spanning tree
-- soma_k: An integer, the number of nearest neighbors for the soma to consider when generating the minimum spanning tree
+### 1. Environment Setup
 
-It returns **two** objects:
-- First: A list of minimum spanning trees, whose properties are described in detail in the script.
-- Second: A list of the cell_ids that did not have enough synapses to make a minimum spanning tree (likely empty, often ignored)
+```bash
+# Clone the repository
+git clone <repository-url>
+cd microns
 
-**Notes on usage:**
+# Create conda environment
+conda env create -f environments/environment.yml
+conda activate microns
 
-- The synapse table that you pass into the function can include data for more than one post-cell. The function will return a list of msts, one for each post-cell in the synapse table.
+# Or use the full environment snapshot
+conda env create -f environments/microns_environment.yml
+```
 
-- The synapse dataframe must be indexed by synapse_id, and the cell dataframe must be indexed by pt_root_id.
+### 2. Basic Usage
 
-- The function needs each dataframe to include certain columns. An exact list is in the function description in the list.
+```python
+import pandas as pd
+from src.mst_generation import generate_msts
+from src.visualization import plot_mst_3d
 
-Here is an example of how I would use the function:
+# Load your data
+synapse_df = pd.read_csv('data/sample_datasets/your_synapses.csv', index_col=0)
+synapse_df.set_index('synapse_id', inplace=True)
 
-https://github.com/nriedman/microns/blob/7d1233d3ac5eba714d28369980fcdc283de6c08c/mst_example.py
+cells_df = pd.read_csv('data/cells_no_repeats.csv', index_col=0)
+cells_df.set_index('pt_root_id', inplace=True)
 
-**For Plotting Msts (plot_msts.py)**
+# Generate minimum spanning trees
+msts, failed_cells = generate_msts(
+    synapses_df=synapse_df,
+    cells_df=cells_df,
+    k=6,        # nearest neighbors for synapses
+    soma_k=10   # nearest neighbors for soma
+)
 
-The plot_msts.py script has functions for visualizing msts in 3D, highlighting sequences.
+# Visualize the first MST
+if msts:
+    plot_mst_3d(msts[0])
+```
 
-The function to do so is called plot_mst_3d(). It takes 1 positional argument (G, an mst graph) and returns the paths for that graph. Along the way, it plots the graph in 3D, highlighting paths of synapses in color. I included it in case you want to visualize any of the minimum spanning trees you create.
+## Core Components
 
-plot_msts.py also includes the functions to get the paths from a given minimum spanning tree. I added functionality to ignore burst sequences, as well as an option to directly return sequences of cell_ids instead of paths of synapse ids. If you get sequences from a tree and would like to conver them into an easily readible format, I also uploaded the dictionaries I use that map pre-cell ids to single unicode characters and back again, as well as from the single unicode characters to a unique 3-character codon that is guaranteed to be legible.
+### MST Generation (`src/mst_generation.py`)
 
-- pre-cell id to char: pt_root_id_to_char.pkl
+The main function `generate_msts()` creates minimum spanning trees from synaptic data:
 
-- char to pre-cell id: char_to_pt_root_id.pkl
+**Parameters:**
+- `synapses_df`: DataFrame of synapses (indexed by synapse_id)
+- `cells_df`: DataFrame of cell information (indexed by pt_root_id)  
+- `k`: Number of nearest neighbors for regular synapses (default: 6)
+- `soma_k`: Number of nearest neighbors for soma connections (default: 10)
 
-- char to codon: char_to_codon.pkl
+**Returns:**
+- List of NetworkX Graph objects (MSTs)
+- List of cell IDs with insufficient synapses
 
-Let me know if you have any questions!
+**Required DataFrame columns:**
 
+*Synapse DataFrame:*
+- `ctr_pt_x`, `ctr_pt_y`, `ctr_pt_z`: Synapse coordinates
+- `post_pt_root_id`: Postsynaptic cell ID
+- `pre_pt_root_id`: Presynaptic cell ID
+- `pre_cell_type`: Presynaptic cell type
+
+*Cells DataFrame:*
+- `pt_root_id`: Cell ID
+- `pt_x`, `pt_y`, `pt_z`: Cell body coordinates
+- `cell_type`: Cell type classification
+
+### Visualization (`src/visualization.py`)
+
+Functions for plotting and analyzing MSTs:
+
+- `plot_mst_3d(G)`: Creates 3D visualization with colored sequence paths
+- `traverse_branch()`: Extracts linear paths from MST graphs
+- Options for burst sequence filtering and cell ID conversion
+
+### Data Organization
+
+- **`data/cells_no_repeats.csv`**: Complete cell information for the MM³ dataset
+- **`data/mappings/`**: ID conversion dictionaries for readable sequence representation
+- **`data/sample_datasets/`**: Example synapse datasets (numbers indicate input percentile)
+
+## Analysis Notebooks
+
+### Core Analysis (`notebooks/analysis/`)
+- `final_analysis.ipynb`: Main results and conclusions
+- `minimum_spanning_tree.ipynb`: Core MST methodology
+- `minimum_spanning_tree_clean.ipynb`: Cleaned analysis pipeline
+
+### Sequence Analysis (`notebooks/sequences/`)
+- `burst_sequences.ipynb`: Synaptic burst pattern analysis
+- `extract_sequences_den.ipynb`: Sequence extraction methods
+
+### Evaluation (`notebooks/evaluation/`)
+- `test_mst_results.ipynb`: Method validation
+- `mst_corner_*.ipynb`: Edge case analysis
+- `query_corners.ipynb`: Data exploration
+
+## Advanced Features
+
+### Sequence Analysis
+
+The toolkit includes functionality to extract and analyze synaptic sequences:
+
+```python
+from src.visualization import traverse_branch
+
+# Extract sequences from an MST
+sequences = []
+for start_node in leaf_nodes:
+    path = traverse_branch(
+        mst_graph, 
+        start_node, 
+        soma_node, 
+        ignore_burst=True,    # Filter burst sequences
+        return_seq=True       # Return cell IDs vs synapse IDs
+    )
+    sequences.append(path)
+```
+
+### Cell ID Mapping
+
+Convert between cell IDs and readable character representations:
+
+```python
+import pickle
+
+# Load mapping dictionaries
+with open('data/mappings/pt_root_id_to_char.pkl', 'rb') as f:
+    id_to_char = pickle.load(f)
+
+with open('data/mappings/char_to_codon.pkl', 'rb') as f:
+    char_to_codon = pickle.load(f)
+
+# Convert sequences to readable format
+readable_sequence = [char_to_codon[id_to_char[cell_id]] for cell_id in sequence]
+```
+
+## Key Features
+
+- **Flexible MST Generation**: Configurable nearest neighbor parameters
+- **3D Visualization**: Interactive plotting of dendritic organization
+- **Sequence Analysis**: Extract and analyze synaptic input patterns
+- **Burst Detection**: Optional filtering of repetitive synaptic events
+- **ID Mapping**: Convert between numerical IDs and readable formats
+- **Modular Design**: Organized codebase for easy extension
+
+## Requirements
+
+- Python 3.8.10
+- Core: pandas, numpy, matplotlib, networkx, scikit-learn
+- Visualization: jupyterlab, ipympl
+- Neuroscience: allensdk, caveclient, meshparty
+- See `environments/` for complete dependency lists
+
+## Citation
+
+This work analyzes data from the MICrONS Cortical MM³ dataset. Please cite appropriate MICrONS publications when using this code.
+
+## Questions?
+
+For questions about usage or implementation, please refer to the inline documentation in the source code or the example notebooks.
